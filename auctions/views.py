@@ -3,13 +3,33 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django import forms
+from .models import User 
+from django.contrib.auth.decorators import login_required
 
-from .models import User
 
 
-def index(request):
-    return render(request, "auctions/index.html")
 
+class formCreate(forms.Form):
+    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
+    Description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"class":"form-control"}))
+    url = forms.CharField(label="URL of Image (optional)", widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
+    category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm"}) ) 
+    
+
+def index(request):  
+    return render(request, "auctions/index.html") 
+
+@login_required
+def createListing(request):
+    # if request.method == "POST":
+    #     f.save()
+    return render(request, "auctions/createListing.html", {
+        "form": formCreate
+    })
+
+def product(request):
+    return render(request, "auctions/productPage.html")
 
 def login_view(request):
     if request.method == "POST":
