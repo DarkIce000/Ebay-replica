@@ -16,8 +16,6 @@ class list_item(models.Model):
     def __str__(self):
         return f"({self.product_title}): {self.description}; seller: {self.seller}; url:{self.imageUrl}"
          
-    #done
-
 class comment(models.Model):
     product_id = models.ForeignKey(list_item, on_delete=models.CASCADE) 
     comment = models.CharField(max_length=300)
