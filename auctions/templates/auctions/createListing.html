@@ -2,8 +2,12 @@
 
 {% block body %}
 <div class="form-group">
-    <form action="#">
+    <form action="{ url 'create/'}">
+        {% csrf_token %}
         {{form}}
-    </form>
+        <div class="mx-auto" style="width:100px">
+            <button type="submit" class="btn btn-primary">Publish</button>
+        </div>
+        </form>
 </div>
 {% endblock %}

@@ -4,26 +4,40 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User 
+from .models import User, list_item
 from django.contrib.auth.decorators import login_required
 
 
-
+#form for the create page  
 
 class formCreate(forms.Form):
-    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
-    Description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"class":"form-control"}))
-    url = forms.CharField(label="URL of Image (optional)", widget=forms.TextInput(attrs={"class":"form-control form-control-sm"}))
-    category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm"}) ) 
+    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"title"}))
+    Description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"class":"form-control my-2", "name":"description"}))
+    url = forms.CharField(label="URL of Image (optional)", widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"url", "type":"url"}))
+    category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"category"}) ) 
     
 
 def index(request):  
-    return render(request, "auctions/index.html") 
+    listItem = list_item.objects.all()
+    
+    return render(request, "auctions/index.html", {
+        "listItem": listItem 
+    }) 
 
-@login_required
 def createListing(request):
-    # if request.method == "POST":
-    #     f.save()
+    #getting the submitted data after the user is submitted 
+    if request.method == "POST":
+        if formCreate.is_valid:
+            title = formCreate.cleaned_data["title"]
+            url = formCreate.cleaned_data["url"]
+            description = formCreate.create_data["description"]
+            listItem = list_item(product_title = title, description=description, seller=request.user.id, imageUrl=url)
+            listItem.save()
+        else:
+            return render(request, "auctions/createListing.html",{
+                "form": formCreate(initial={"title":title, "description": description, "url":url})
+            })
+
     return render(request, "auctions/createListing.html", {
         "form": formCreate
     })
