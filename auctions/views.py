@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
-from .models import User, list_item
+from .models import User, list_item, comment, watchlist
 from django.contrib.auth.decorators import login_required
 
 
@@ -15,7 +15,11 @@ class formCreate(forms.Form):
     Description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"class":"form-control my-2", "name":"description"}))
     url = forms.CharField(label="URL of Image (optional)", widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"url", "type":"url"}))
     category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"category"}) ) 
-    
+    initialBid = forms.CharField(label="Initial", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"initialBid", "type":"number"}) ) 
+
+class formComment(forms.Form):
+    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control", "type":"text"}))
+    msg = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control"}))
 
 def index(request):  
     listItem = list_item.objects.all()
@@ -30,20 +34,42 @@ def createListing(request):
         if formCreate.is_valid:
             title = formCreate.cleaned_data["title"]
             url = formCreate.cleaned_data["url"]
-            description = formCreate.create_data["description"]
-            listItem = list_item(product_title = title, description=description, seller=request.user.id, imageUrl=url)
+            description = formCreate.cleaned_data["description"]
+            initialBid = formCreate.cleaned_data["initialBid"]
+            listItem = list_item(product_title = title, description=description, seller=request.user.id, imageUrl=url, initialBid=initialBid)  
             listItem.save()
         else:
             return render(request, "auctions/createListing.html",{
-                "form": formCreate(initial={"title":title, "description": description, "url":url})
+                "form": formCreate(initial={"title":title, "description": description, "url":url, "initialBid":initialBid})
             })
 
     return render(request, "auctions/createListing.html", {
         "form": formCreate
     })
 
-def product(request):
-    return render(request, "auctions/productPage.html")
+def product(request, product_id):
+    product = list_item.objects.get(id=product_id) 
+    return render(request, "auctions/productPage.html",{
+        "product_info": product,
+        "formComment":formComment()
+    })
+
+def commentMade(request, productNumber):
+    if request.method == "POST": 
+        comment_title = request.POST["title"]
+        comment_msg = request.POST["msg"]
+        comment_save = comment(title=comment_title, msg=comment_msg)
+        comment_save.save()
+        return HttpResponseRedirect(request, "auction/{productNumber}")
+    else:
+        return HttpResponseRedirect(request, "auctions/index.html")
+
+def watchList(request):
+    if request.method == "POST":
+        watchlist = request.POST["is_checked"]
+        return #to current page or reload 
+    else:
+        return #to the current page 
 
 def login_view(request):
     if request.method == "POST":

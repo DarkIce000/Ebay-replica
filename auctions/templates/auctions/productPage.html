@@ -4,22 +4,63 @@
     <div class="container">
         <div class="row">
             <div class="col" style="height:auto">
-                <img src="https://statusneo.com/wp-content/uploads/2023/02/MicrosoftTeams-image551ad57e01403f080a9df51975ac40b6efba82553c323a742b42b1c71c1e45f1.jpg" alt="image" class="img-fluid rounded" style="min-width:400px">
+                <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px">
             </div>
             <div class="col align-items-center" style>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><b>Title:</b></li>
-                    <li class="list-group-item"><b>Description:</b></li>
-                    <li class="list-group-item"><b>Seller:</b></li>
-                    <li class="list-group-item"><b>Starting Bid:</b></li>
-                    <li class="list-group-item"><b>Current Bid:</b></li>
+                    <li class="list-group-item"><b> {{ product_info.product_title }}</b></li>
+                    <li class="list-group-item"><b>Description: {{ product_info.description }}</b></li>
+                    <li class="list-group-item"><b>Seller: </b> {{ product_info.seller}}</li>
+                    <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.initialBid }} </li>
+                    <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bid.last_bid }} {{ product_info.bid.last_bidder }} </li>
                 </ul>
+                <form action="" >
+                    <button type="submit" style="border:none; background-color:rgba(255, 255, 255, 0)"><i class="fa-solid fa-heart" style="color: #fa0000; font-size:32px;"></i> Add to watchlist </button>
+                </form>
             </div>
         </div>
+
+    </div>
+    <div class="container">
         <div class="row mt-2">
+            <!-- comment -->
             <div class="col">
                 <h1>comment here </h1>
+                <form action="{url 'commentMade'}">
+                    {{formComment}} 
+                    <button type="submit">Post</button>
+                </form>
             </div>
+            <!-- comments List -->
+            <div class="col">
+                <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">List group item heading</h5>
+                    <small>3 days ago</small>
+                    </div>
+                    <p class="mb-1">Some placeholder content in a paragraph.</p>
+                    <small>And some small print.</small>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">List group item heading</h5>
+                    <small class="text-body-secondary">3 days ago</small>
+                    </div>
+                    <p class="mb-1">Some placeholder content in a paragraph.</p>
+                    <small class="text-body-secondary">And some muted small print.</small>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">List group item heading</h5>
+                    <small class="text-body-secondary">3 days ago</small>
+                    </div>
+                    <p class="mb-1">Some placeholder content in a paragraph.</p>
+                    <small class="text-body-secondary">And some muted small print.</small>
+                </a>
+                </div>
+            </div>
+            <!-- commentList -->
         </div>
     </div>
 {% endblock %}
