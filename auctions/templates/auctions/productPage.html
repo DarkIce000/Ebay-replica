@@ -3,23 +3,59 @@
 {% block body%}
     <div class="container">
         <div class="row">
-            <div class="col" style="height:auto">
-                <img src="https://statusneo.com/wp-content/uploads/2023/02/MicrosoftTeams-image551ad57e01403f080a9df51975ac40b6efba82553c323a742b42b1c71c1e45f1.jpg" alt="image" class="img-fluid rounded" style="min-width:400px">
+            <div class="col-lg" style="height:auto">
+ 
+                <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px" class="img-fluid">
             </div>
             <div class="col align-items-center" style>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><b>Title:</b></li>
-                    <li class="list-group-item"><b>Description:</b></li>
-                    <li class="list-group-item"><b>Seller:</b></li>
-                    <li class="list-group-item"><b>Starting Bid:</b></li>
-                    <li class="list-group-item"><b>Current Bid:</b></li>
+                    <li class="list-group-item"><b> {{ product_info.product_title }}</b></li>
+                    <li class="list-group-item"><b>Description: {{ product_info.description }}</b></li>
+                    <li class="list-group-item"><b>Seller: </b> {{ product_info.seller}}</li>
+                    <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.initialBid }} </li>
+                    <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bid.last_bid }} {{ product_info.bid.last_bidder }} </li>
                 </ul>
+                <div class="form-check">
+                    <form action="{% url 'watchList' product_info.id %}" method="POST" id ="watchlistForm">
+
+                        {% csrf_token %}
+                        {{ add_watchlist }}
+                        <label for="addToWatchlist" class="form-control-label">add to watchlist</label>
+
+                    </form>
+                </div>
             </div>
         </div>
+
+    </div>
+    <div class="container">
         <div class="row mt-2">
-            <div class="col">
-                <h1>comment here </h1>
+            <!-- comment -->
+            <div class="col-lg">
+                <h2 class="mt-2">Comment here </h2>
+                <hr>
+                <form action="{% url 'commentMade' product_info.id %}" method="POST">
+                    {% csrf_token %}
+                    {{formComment}} 
+                    <button type="submit" class="form-control btn-primary mt-2">Post</button>
+                </form>
             </div>
+            <!-- comments List -->
+            <div class="col-lg">
+                <h2 class="mt-2">Comments So Far..</h2>
+                <hr>
+                <div class="list-group">
+                    {% for comment in product_info.comments %}
+                        <p>{{ comment.title }}</p>
+                        <p>{{ comment.msg }}</p>
+                    {% endfor %}
+                </div>
+            <!-- commentList -->
         </div>
     </div>
+    <script>
+        function watchlist(){
+            document.getElementById("watchlistForm").submit();
+        }
+    </script>
 {% endblock %}
