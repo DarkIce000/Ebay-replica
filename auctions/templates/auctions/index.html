@@ -5,10 +5,10 @@
     <div class="container">
         <div class="row align-items-center justify-content-center" style="width:100%">
             {% for item in listItem %}
-                <div class="col mt-3">
+                <div class="col mt-3" style="height:50vh">
                     <div class="card" style="width: 18rem;">
-                    <img src="{{ item.imageUrl }}" class="card-img-top" alt="...">
-                    <div class="card-body">
+                    <img src="{{ item.imageUrl }}" class="card-img-top img-fluid" alt="..." style="height:300px; overflow:hidden;">
+                    <div class="card-body" style="height:40%; overflow:hidden;">
                         <h5 class="card-title">{{ item.product_title }}</h5>
                         <p class="card-text">{{ item.description }}</p>
                     </div>

@@ -17,10 +17,18 @@ class formCreate(forms.Form):
     category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"category"}) ) 
     initialBid = forms.CharField(label="Initial", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"initialBid", "type":"number"}) ) 
 
+
 class formComment(forms.Form):
     title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control", "type":"text"}))
     msg = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control"}))
 
+class formWatchlist(forms.Form):
+    addToWatchlist = forms.BooleanField()
+
+# forms endhere 
+# view functions 
+
+#index page for listing all the items 
 def index(request):  
     listItem = list_item.objects.all()
     
@@ -28,15 +36,21 @@ def index(request):
         "listItem": listItem 
     }) 
 
+
+# create a list on the site 
+@login_required(login_url="/login")
 def createListing(request):
     #getting the submitted data after the user is submitted 
     if request.method == "POST":
-        if formCreate.is_valid:
-            title = formCreate.cleaned_data["title"]
-            url = formCreate.cleaned_data["url"]
-            description = formCreate.cleaned_data["description"]
-            initialBid = formCreate.cleaned_data["initialBid"]
-            listItem = list_item(product_title = title, description=description, seller=request.user.id, imageUrl=url, initialBid=initialBid)  
+        listing = formCreate(request.POST)
+
+        if listing.is_valid():
+            title = listing.cleaned_data["title"]
+            url = listing.cleaned_data["url"]
+            description = listing.cleaned_data["Description"]
+            initialBid = listing.cleaned_data["initialBid"]
+
+            listItem = list_item(product_title = title, description=description, seller=request.user, imageUrl=url, initialBid=initialBid)  
             listItem.save()
         else:
             return render(request, "auctions/createListing.html",{
@@ -48,47 +62,91 @@ def createListing(request):
     })
 
 def product(request, product_id):
-    product = list_item.objects.get(id=product_id) 
+    product = list_item.objects.get(id=product_id)  
+
+
     return render(request, "auctions/productPage.html",{
         "product_info": product,
+        "add_watchlist": formWatchlist(),
         "formComment":formComment()
     })
 
-def commentMade(request, productNumber):
+def commentMade(request, product_id):
+    commentobj = formComment(request.POST) 
     if request.method == "POST": 
-        comment_title = request.POST["title"]
-        comment_msg = request.POST["msg"]
-        comment_save = comment(title=comment_title, msg=comment_msg)
-        comment_save.save()
-        return HttpResponseRedirect(request, "auction/{productNumber}")
-    else:
-        return HttpResponseRedirect(request, "auctions/index.html")
+        if commentobj.is_valid():            
+            comment_title = commentobj.cleaned_data['title']
+            comment_msg = commentobj.cleaned_data["msg"]
+            comment_save = comment(title=comment_title, msg=comment_msg)
+            comment_save.save()
+            return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
 
-def watchList(request):
+        return HttpResponseRedirect(reverse("product_page", args=(product_id,)), {"message" :
+                                                                                     "comment is invalid"})
+     
+    return HttpResponseRedirect(reverse("index"))
+
+
+@login_required(login_url="/login")
+def watchList(request, product_id ):
+    #adding a item to the watchlist
     if request.method == "POST":
-        watchlist = request.POST["is_checked"]
-        return #to current page or reload 
+        print(request.POST['addToWatchlist'])
+        return HttpResponse(f"Added to the watchlist ") 
     else:
-        return #to the current page 
+        return HttpResponse(f"Something error at watchlist ")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def login_view(request):
+
+    next = ""
+    if request.GET: 
+        next = request.GET['next']
+
     if request.method == "POST":
 
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
-
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("index"))
+            if next is not "":
+                return HttpResponseRedirect(next)
+            return HttpResponseRedirect(reverse('index'))
         else:
             return render(request, "auctions/login.html", {
                 "message": "Invalid username and/or password."
             })
     else:
-        return render(request, "auctions/login.html")
+        return render(request, "auctions/login.html", {
+            "next" : next
+        })
 
 
 def logout_view(request):

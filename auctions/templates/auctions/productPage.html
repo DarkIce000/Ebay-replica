@@ -3,8 +3,9 @@
 {% block body%}
     <div class="container">
         <div class="row">
-            <div class="col" style="height:auto">
-                <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px">
+            <div class="col-lg" style="height:auto">
+ 
+                <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px" class="img-fluid">
             </div>
             <div class="col align-items-center" style>
                 <ul class="list-group list-group-flush">
@@ -14,9 +15,15 @@
                     <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.initialBid }} </li>
                     <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bid.last_bid }} {{ product_info.bid.last_bidder }} </li>
                 </ul>
-                <form action="" >
-                    <button type="submit" style="border:none; background-color:rgba(255, 255, 255, 0)"><i class="fa-solid fa-heart" style="color: #fa0000; font-size:32px;"></i> Add to watchlist </button>
-                </form>
+                <div class="form-check">
+                    <form action="{% url 'watchList' product_info.id %}" method="POST" id ="watchlistForm">
+
+                        {% csrf_token %}
+                        {{ add_watchlist }}
+                        <label for="addToWatchlist" class="form-control-label">add to watchlist</label>
+
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -24,43 +31,31 @@
     <div class="container">
         <div class="row mt-2">
             <!-- comment -->
-            <div class="col">
-                <h1>comment here </h1>
-                <form action="{url 'commentMade'}">
+            <div class="col-lg">
+                <h2 class="mt-2">Comment here </h2>
+                <hr>
+                <form action="{% url 'commentMade' product_info.id %}" method="POST">
+                    {% csrf_token %}
                     {{formComment}} 
-                    <button type="submit">Post</button>
+                    <button type="submit" class="form-control btn-primary mt-2">Post</button>
                 </form>
             </div>
             <!-- comments List -->
-            <div class="col">
+            <div class="col-lg">
+                <h2 class="mt-2">Comments So Far..</h2>
+                <hr>
                 <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
-                    <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">List group item heading</h5>
-                    <small>3 days ago</small>
-                    </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                    <small>And some small print.</small>
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">List group item heading</h5>
-                    <small class="text-body-secondary">3 days ago</small>
-                    </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                    <small class="text-body-secondary">And some muted small print.</small>
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">
-                    <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">List group item heading</h5>
-                    <small class="text-body-secondary">3 days ago</small>
-                    </div>
-                    <p class="mb-1">Some placeholder content in a paragraph.</p>
-                    <small class="text-body-secondary">And some muted small print.</small>
-                </a>
+                    {% for comment in product_info.comments %}
+                        <p>{{ comment.title }}</p>
+                        <p>{{ comment.msg }}</p>
+                    {% endfor %}
                 </div>
-            </div>
             <!-- commentList -->
         </div>
     </div>
+    <script>
+        function watchlist(){
+            document.getElementById("watchlistForm").submit();
+        }
+    </script>
 {% endblock %}
