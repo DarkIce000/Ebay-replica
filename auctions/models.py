@@ -5,12 +5,18 @@ from django.db import models
 class User(AbstractUser): 
     pass
 
+class bid(models.Model):
+    initialBid = models.IntegerField(default=0)
+    last_bid = models.IntegerField(null=True)
+    last_bidder = models.OneToOneField(User, on_delete=models.CASCADE, related_name="last_bidder", null = True) 
+ 
 class list_item(models.Model):
     product_title = models.CharField(max_length=64)
     description = models.CharField(max_length=500)
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     imageUrl = models.CharField(max_length=1000, blank=True)
     active_status = models.BooleanField(default=True) 
+    bids = models.ForeignKey(bid, default=0, on_delete=models.CASCADE)
     #done  
      
 class comment(models.Model):
@@ -21,12 +27,7 @@ class comment(models.Model):
         return f"title: {self.title} message : {self.msg}" 
     #done
 
-class bid(models.Model):
-    product = models.ForeignKey(list_item, on_delete=models.CASCADE)
-    initialBid = models.IntegerField(default=0)
-    last_bid = models.IntegerField()
-    last_bidder = models.OneToOneField(User, on_delete=models.CASCADE, related_name="last_bidder") 
-    #done
+   #done
 
 class watchlist(models.Model):
     userId = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)

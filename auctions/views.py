@@ -3,37 +3,15 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django import forms
-from .models import User, list_item, comment, watchlist
+from .formsTemplate import formCreate, formComment, formWatchlist
+from .models import User, list_item, comment, watchlist, bid
 from django.contrib.auth.decorators import login_required
-
-
-#form for the create page  
-
-class formCreate(forms.Form):
-    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"title"}))
-    Description = forms.CharField(label="Description", widget=forms.Textarea(attrs={"class":"form-control my-2", "name":"description"}))
-    url = forms.CharField(label="URL of Image (optional)", widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"url", "type":"url"}))
-    category = forms.CharField(label="Category", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"category"}) ) 
-    initialBid = forms.CharField(label="Initial", widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"initialBid", "type":"number"}) ) 
-
-
-class formComment(forms.Form):
-    title = forms.CharField(widget=forms.TextInput(attrs={"class":"form-control", "type":"text"}))
-    msg = forms.CharField(widget=forms.Textarea(attrs={"class":"form-control"}))
-
-class formWatchlist(forms.Form):
-    addToWatchlist = forms.BooleanField()
-
-# forms endhere 
-# view functions 
 
 #index page for listing all the items 
 def index(request):  
     listItem = list_item.objects.all()
-    
     return render(request, "auctions/index.html", {
-        "listItem": listItem 
+        "listItem": listItem
     }) 
 
 
@@ -50,11 +28,24 @@ def createListing(request):
             description = listing.cleaned_data["Description"]
             initialBid = listing.cleaned_data["initialBid"]
 
-            listItem = list_item(product_title = title, description=description, seller=request.user, imageUrl=url, initialBid=initialBid)  
+            bidding = bid(initialBid = initialBid)
+            bidding.save()
+
+            listItem = list_item(
+                product_title = title,
+                description=description,
+                seller=request.user,
+                imageUrl=url, bids=bidding
+                )  
             listItem.save()
         else:
             return render(request, "auctions/createListing.html",{
-                "form": formCreate(initial={"title":title, "description": description, "url":url, "initialBid":initialBid})
+                "form": formCreate(initial={
+                    "title":title,
+                    "description": description,
+                    "url":url,
+                    "initialBid":initialBid
+                    })
             })
 
     return render(request, "auctions/createListing.html", {
@@ -63,26 +54,33 @@ def createListing(request):
 
 def product(request, product_id):
     product = list_item.objects.get(id=product_id)  
-
+    try:
+        get_comments = comment.objects.filter(product_id=product_id)  
+    except:
+        get_comments = "No Comments" 
 
     return render(request, "auctions/productPage.html",{
         "product_info": product,
         "add_watchlist": formWatchlist(),
-        "formComment":formComment()
+        "formComment":formComment(),
+        "display_comments": get_comments
     })
 
 def commentMade(request, product_id):
     commentobj = formComment(request.POST) 
+    get_product = list_item.objects.get(id = product_id)
     if request.method == "POST": 
         if commentobj.is_valid():            
             comment_title = commentobj.cleaned_data['title']
             comment_msg = commentobj.cleaned_data["msg"]
-            comment_save = comment(title=comment_title, msg=comment_msg)
+            comment_save = comment(title=comment_title, msg=comment_msg, product_id=get_product)
             comment_save.save()
-            return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
+            return HttpResponseRedirect(reverse("product_page",
+                                                 args=(product_id,)))
 
-        return HttpResponseRedirect(reverse("product_page", args=(product_id,)), {"message" :
-                                                                                     "comment is invalid"})
+        return HttpResponseRedirect(reverse("product_page",
+                                             args=(product_id,)),
+                                               {"message" : "comment is invalid"})
      
     return HttpResponseRedirect(reverse("index"))
 

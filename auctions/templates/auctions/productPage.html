@@ -12,8 +12,8 @@
                     <li class="list-group-item"><b> {{ product_info.product_title }}</b></li>
                     <li class="list-group-item"><b>Description: {{ product_info.description }}</b></li>
                     <li class="list-group-item"><b>Seller: </b> {{ product_info.seller}}</li>
-                    <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.initialBid }} </li>
-                    <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bid.last_bid }} {{ product_info.bid.last_bidder }} </li>
+                    <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.bids.initialBid }} </li>
+                    <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bids.last_bid }} {{ product_info.bids.last_bidder }} </li>
                 </ul>
                 <div class="form-check">
                     <form action="{% url 'watchList' product_info.id %}" method="POST" id ="watchlistForm">
@@ -45,9 +45,10 @@
                 <h2 class="mt-2">Comments So Far..</h2>
                 <hr>
                 <div class="list-group">
-                    {% for comment in product_info.comments %}
+                    {% for comment in display_comments %}
                         <p>{{ comment.title }}</p>
                         <p>{{ comment.msg }}</p>
+                        <hr>
                     {% endfor %}
                 </div>
             <!-- commentList -->
