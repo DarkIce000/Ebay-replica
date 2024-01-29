@@ -14,8 +14,8 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item"><b>Seller: </b> <span style="color:midnightblue"></span> {{ item.seller }} </span></li>
-                        <li class="list-group-item"><b>Default Bid:</b> &#36; {{ item.initialBid}}</li>
-                        <li class="list-group-item"><b>Current Bid:</b> &#36;{{ item.bid.last_bid }}</li>
+                        <li class="list-group-item"><b>Default Bid:</b> &#36; {{ item.bids.initialBid }}</li>
+                        <li class="list-group-item"><b>Current Bid:</b> &#36;{{ item.bids.last_bid }}</li>
                     </ul>
                     <div class="card-body">
                         <a href="{{ item.id }}" class="card-link"> Go to Product Page </a>
