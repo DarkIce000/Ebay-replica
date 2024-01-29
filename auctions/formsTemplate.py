@@ -1,20 +1,36 @@
 from django import forms
 
 class formCreate(forms.Form):
-    title = forms.CharField(widget=forms.TextInput
-                            (attrs={"class":"form-control my-2 form-control-sm", "name":"title"})
-                            )
+    title = forms.CharField(widget=forms.TextInput(attrs={
+                                "class":"form-control my-2 form-control-sm",
+                                "name":"title"
+                                }))
+
     Description = forms.CharField(label="Description",
-                                   widget=forms.Textarea(attrs={"class":"form-control my-2", "name":"description"})
-                                   )
+                                   widget=forms.Textarea(attrs={
+                                       "class":"form-control my-2",
+                                        "name":"description"
+                                        }))
+
     url = forms.CharField(label="URL of Image (optional)",
-                           widget=forms.TextInput(attrs={"class":"form-control my-2 form-control-sm", "name":"url", "type":"url"})
-                           )
+                           widget=forms.TextInput(attrs={
+                                "class":"form-control my-2 form-control-sm",
+                                "name":"url",
+                                "type":"url"
+                                 }))
+
     category = forms.CharField(label="Category",
-                                widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"category"}) 
-                                 ) 
+                                widget=forms.TextInput(attrs={
+                                    "class" : "form-control form-control-sm my-2",
+                                    "name":"category"
+                                    })) 
+
     initialBid = forms.CharField(label="Initial",
-                                  widget=forms.TextInput(attrs={ "class" : "form-control form-control-sm my-2", "name":"initialBid", "type":"number"}) ) 
+                                  widget=forms.TextInput(attrs={
+                                    "class" : "form-control form-control-sm my-2",
+                                    "name":"initialBid",
+                                    "type":"number"
+                                    })) 
 
 
 class formComment(forms.Form):

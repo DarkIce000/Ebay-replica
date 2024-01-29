@@ -30,8 +30,8 @@ class comment(models.Model):
    #done
 
 class watchlist(models.Model):
-    userId = models.ForeignKey(User, on_delete=models.CASCADE, primary_key=True)
-    product_id = models.ForeignKey(list_item, on_delete=models.CASCADE)
+    userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(list_item, on_delete=models.CASCADE, primary_key=True)
     #done 
 
 class category(models.Model):

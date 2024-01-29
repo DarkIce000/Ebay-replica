@@ -6,19 +6,20 @@ from django.urls import reverse
 from .formsTemplate import formCreate, formComment, formWatchlist
 from .models import User, list_item, comment, watchlist, bid
 from django.contrib.auth.decorators import login_required
+import datetime
 
-#index page for listing all the items 
-def index(request):  
+#index page for listing all the items
+def index(request):
     listItem = list_item.objects.all()
     return render(request, "auctions/index.html", {
         "listItem": listItem
-    }) 
+    })
 
 
-# create a list on the site 
+# create a list on the site
 @login_required(login_url="/login")
 def createListing(request):
-    #getting the submitted data after the user is submitted 
+    #getting the submitted data after the user is submitted
     if request.method == "POST":
         listing = formCreate(request.POST)
 
@@ -35,9 +36,11 @@ def createListing(request):
                 product_title = title,
                 description=description,
                 seller=request.user,
-                imageUrl=url, bids=bidding
-                )  
+                imageUrl=url,
+                bids=bidding
+                )
             listItem.save()
+
         else:
             return render(request, "auctions/createListing.html",{
                 "form": formCreate(initial={
@@ -52,48 +55,78 @@ def createListing(request):
         "form": formCreate
     })
 
+
+#getting the products from db
 def product(request, product_id):
-    product = list_item.objects.get(id=product_id)  
+    product = list_item.objects.get(id=product_id)
     try:
-        get_comments = comment.objects.filter(product_id=product_id)  
+        get_comments = comment.objects.filter(product_id=product_id)
     except:
-        get_comments = "No Comments" 
+        get_comments = "No Comments"
+    
+#some workaround for the js part handling and watchlist that i didnot know 
+# how to make that checkbox checked from fetching from the db
+
+    try: 
+        is_in_watchlist= watchlist.objects.get(userId=request.user, product_id=product) 
+    except:
+        is_in_watchlist = None
+    
+    if is_in_watchlist :
+        is_in_watchlist = "checked"
+    else: 
+        is_in_watchlist = "unchecked"
 
     return render(request, "auctions/productPage.html",{
         "product_info": product,
         "add_watchlist": formWatchlist(),
         "formComment":formComment(),
-        "display_comments": get_comments
+        "display_comments": get_comments, 
+        "is_in_watchlist": is_in_watchlist
     })
 
+
+#commenting feature onthe product page
 def commentMade(request, product_id):
-    commentobj = formComment(request.POST) 
+    commentobj = formComment(request.POST)
     get_product = list_item.objects.get(id = product_id)
-    if request.method == "POST": 
-        if commentobj.is_valid():            
+    if request.method == "POST":
+        if commentobj.is_valid():
             comment_title = commentobj.cleaned_data['title']
             comment_msg = commentobj.cleaned_data["msg"]
+
+			#saving to the comment table
             comment_save = comment(title=comment_title, msg=comment_msg, product_id=get_product)
             comment_save.save()
-            return HttpResponseRedirect(reverse("product_page",
-                                                 args=(product_id,)))
+            return HttpResponseRedirect(reverse("product_page",args=(product_id,)))
 
-        return HttpResponseRedirect(reverse("product_page",
-                                             args=(product_id,)),
-                                               {"message" : "comment is invalid"})
-     
+        return HttpResponseRedirect(reverse("product_page", args=(product_id,)), {
+            "message" : "comment is invalid"
+            })
+
     return HttpResponseRedirect(reverse("index"))
 
 
+#watchlist implementation
 @login_required(login_url="/login")
 def watchList(request, product_id ):
-    #adding a item to the watchlist
-    if request.method == "POST":
-        print(request.POST['addToWatchlist'])
-        return HttpResponse(f"Added to the watchlist ") 
-    else:
-        return HttpResponse(f"Something error at watchlist ")
 
+    product = list_item.objects.get(id=product_id)
+    if request.method == "POST":
+        # if marked in watchlist checkbox then add to the db
+        if(request.POST.get('addToWatchlist')):
+            add_to_watchlist = watchlist(userId=request.user, product_id=product)
+            print('fetching done')
+            add_to_watchlist.save()
+        #if exits and unchecked then  remove 
+        else:
+            delete_watchlist = watchlist.objects.get(userId=request.user, product_id=product)
+            delete_watchlist.delete() 
+        return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
+
+    return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
+    #if exist in db return to the page for displaying status of the product in Product page 
+    #and then make the buttoon checked if exist
 
 
 
@@ -122,7 +155,7 @@ def watchList(request, product_id ):
 def login_view(request):
 
     next = ""
-    if request.GET: 
+    if request.GET:
         next = request.GET['next']
 
     if request.method == "POST":

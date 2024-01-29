@@ -1,13 +1,24 @@
 {% extends "auctions/layout.html" %}
 
 {% block body%}
+
+    <!-- upper Body -->
+    <!-- Product Description  -->
+    
+
     <div class="container">
         <div class="row">
-            <div class="col-lg" style="height:auto">
- 
+
+            <!-- left side  -->
+            <div class="col-lg" style="height:auto"> 
                 <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px" class="img-fluid">
             </div>
-            <div class="col align-items-center" style>
+            
+            <!-- right side -->
+
+            <div class="col align-items-center">
+
+            <!-- description -->
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><b> {{ product_info.product_title }}</b></li>
                     <li class="list-group-item"><b>Description: {{ product_info.description }}</b></li>
@@ -15,22 +26,33 @@
                     <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.bids.initialBid }} </li>
                     <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bids.last_bid }} {{ product_info.bids.last_bidder }} </li>
                 </ul>
+                
+            <!-- add to watchlist button  -->
                 <div class="form-check">
                     <form action="{% url 'watchList' product_info.id %}" method="POST" id ="watchlistForm">
 
                         {% csrf_token %}
-                        {{ add_watchlist }}
-                        <label for="addToWatchlist" class="form-control-label">add to watchlist</label>
+                        <label for="addToWatchlist" class="form-control-label">add to watchlist</label> 
+                        <input name="addToWatchlist" type="checkbox" class="form-control" id="addToWatchlist" onclick="watchlist()" {{ is_in_watchlist }}>
 
                     </form>
                 </div>
+            
             </div>
         </div>
 
     </div>
+    
+
+    <!-- Lower Body -->
+
+    <!-- commenting in the product page  -->
+
+
     <div class="container">
         <div class="row mt-2">
-            <!-- comment -->
+
+            <!-- comment mading -->
             <div class="col-lg">
                 <h2 class="mt-2">Comment here </h2>
                 <hr>
@@ -40,6 +62,7 @@
                     <button type="submit" class="form-control btn-primary mt-2">Post</button>
                 </form>
             </div>
+
             <!-- comments List -->
             <div class="col-lg">
                 <h2 class="mt-2">Comments So Far..</h2>
@@ -51,12 +74,19 @@
                         <hr>
                     {% endfor %}
                 </div>
+
             <!-- commentList -->
         </div>
     </div>
+    
+
+    <!-- scripting starts from here  -->
+
     <script>
+        
         function watchlist(){
-            document.getElementById("watchlistForm").submit();
+            Form = document.getElementById("watchlistForm");
+            Form.submit()
         }
     </script>
 {% endblock %}
