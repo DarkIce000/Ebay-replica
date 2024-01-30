@@ -111,28 +111,36 @@ def commentMade(request, product_id):
 @login_required(login_url="/login")
 def watchList(request, product_id ):
 
+    try:
+        watchlist_obj = watchlist.objects.get(userId=request.user, product_id=product)
+    except:
+        watchlist_obj = None
+    
     product = list_item.objects.get(id=product_id)
     if request.method == "POST":
         # if marked in watchlist checkbox then add to the db
-        if(request.POST.get('addToWatchlist')):
+        if(request.POST.get('addToWatchlist') and not watchlist_obj):
             add_to_watchlist = watchlist(userId=request.user, product_id=product)
             print('fetching done')
             add_to_watchlist.save()
         #if exits and unchecked then  remove 
         else:
-            delete_watchlist = watchlist.objects.get(userId=request.user, product_id=product)
-            delete_watchlist.delete() 
+           watchlist_obj .delete() 
         return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
 
     return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
-    #if exist in db return to the page for displaying status of the product in Product page 
-    #and then make the buttoon checked if exist
 
+@login_required(login_url='/login')
+def make_bid(request, product_id):
+    try: 
+        get_product = list_item.objects.get(id=product_id)    
+    except:
+        get_product = None 
 
-
-
-
-
+    if request.method == "POST":
+        if get_product: 
+            get_product.bids.last_bid.update(last_bid=request.POST.get('last_bid'))
+            get_product.bids.last_bidder.update(last_bidder=request.POST.get('last_bidder'))
 
 
 
