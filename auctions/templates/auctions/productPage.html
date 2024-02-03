@@ -37,6 +37,29 @@
 
                     </form>
                 </div>
+                <div class="form-check">
+
+                  <form action="{% url 'bidding_view' product_info.id %}" id="biddingForm" method="POST">
+
+                    {% csrf_token %}
+
+                    {% if is_user %}
+
+                      {% block Button %}
+                        <input name="closeButton" type="submit" value="close" class="btn btn-primary">
+                      {% endblock%}
+
+                    {% else %}
+
+                      {%block inputfield %}
+                        <input type="number" name="biddingField" class="form-control">
+                        <input type="submit" name="biddingButton" value="makeBid" class="btn btn-primary form-control">
+                      {% endblock %}
+
+                    {% endif %}
+
+                  </form>
+                </div> 
             
             </div>
         </div>

@@ -58,31 +58,37 @@ def createListing(request):
 
 #getting the products from db
 def product(request, product_id):
-    product = list_item.objects.get(id=product_id)
     try:
+        product_obj = list_item.objects.get(id=product_id)
         get_comments = comment.objects.filter(product_id=product_id)
-    except:
-        get_comments = "No Comments"
-    
-#some workaround for the js part handling and watchlist that i didnot know 
-# how to make that checkbox checked from fetching from the db
-
-    try: 
-        is_in_watchlist= watchlist.objects.get(userId=request.user, product_id=product) 
-    except:
+        is_in_watchlist= watchlist.objects.get(userId=request.user, product_id=product_obj) 
+    except list_item.DoesNotExist:
+        
+        product = None
+    except comment.DoesNotExist:
+        get_comment = "No Comments"
+    except watchlist.DoesNotExist:
         is_in_watchlist = None
-    
+
+    #some workaround for the js part handling and watchlist that i didnot know 
+    # how to make that checkbox checked from fetching from the db 
     if is_in_watchlist :
         is_in_watchlist = "checked"
     else: 
         is_in_watchlist = "unchecked"
 
+    #if the seller is the logged in user display close button else display bidding form 
+    is_user = ""
+    if request.user == product_obj.seller:
+        is_user = True
+
     return render(request, "auctions/productPage.html",{
-        "product_info": product,
+        "product_info": product_obj,
         "add_watchlist": formWatchlist(),
         "formComment":formComment(),
         "display_comments": get_comments, 
-        "is_in_watchlist": is_in_watchlist
+        "is_in_watchlist": is_in_watchlist,
+        "is_user": is_user
     })
 
 
@@ -109,39 +115,62 @@ def commentMade(request, product_id):
 
 #watchlist implementation
 @login_required(login_url="/login")
-def watchList(request, product_id ):
+def watchlist_view(request, product_id=0):
 
-    try:
-        watchlist_obj = watchlist.objects.get(userId=request.user, product_id=product)
-    except:
-        watchlist_obj = None
-    
-    product = list_item.objects.get(id=product_id)
     if request.method == "POST":
         # if marked in watchlist checkbox then add to the db
+        try:     
+            product_obj = list_item.objects.get(id=product_id)
+            try:
+                watchlist_obj = watchlist.objects.get(userId=request.user, product_id=product_obj)
+            except:
+                watchlist_obj = None
+        except:
+            return HttpResponse(f' Bad Request')
+
         if(request.POST.get('addToWatchlist') and not watchlist_obj):
-            add_to_watchlist = watchlist(userId=request.user, product_id=product)
-            print('fetching done')
+            add_to_watchlist = watchlist(userId=request.user, product_id=product_obj)
             add_to_watchlist.save()
         #if exits and unchecked then  remove 
-        else:
-           watchlist_obj .delete() 
+        elif(not request.POST.get('addToWatchlist') and watchlist_obj):
+            watchlist_obj.delete() 
+
         return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
 
-    return HttpResponseRedirect(reverse("product_page", args=(product_id,)))
+    get_watchlist_for_user = watchlist.objects.filter(userId=request.user)
+    return render(request, "auctions/watchlist.html", {"list": get_watchlist_for_user})
+
 
 @login_required(login_url='/login')
-def make_bid(request, product_id):
+def bidding_view(request, product_id):
     try: 
         get_product = list_item.objects.get(id=product_id)    
+        
     except:
         get_product = None 
 
     if request.method == "POST":
-        if get_product: 
-            get_product.bids.last_bid.update(last_bid=request.POST.get('last_bid'))
-            get_product.bids.last_bidder.update(last_bidder=request.POST.get('last_bidder'))
+        if request.POST.get("closeButton"):
+            # last time check if the user is the seller then change status to close and redirect to the product page 
+            if request.user == get_product.seller :
+                get_product.active_status = False 
+                get_product.save()
 
+                return HttpResponseRedirect(reverse('index'))
+
+        if request.POST.get("biddingField"): 
+            if (int(request.POST.get("biddingField")) > int(get_product.bids.last_bid)):
+                #update the last bidding if they make the greater than the last bidding
+                get_product.bids.last_bid = request.POST.get('biddingField')
+                get_product.bids.last_bidder = request.user
+
+                get_product.bids.save()
+
+                return HttpResponseRedirect(reverse('product_page', args=(product_id, )))
+            else: 
+                return HttpResponseRedirect(reverse('product_page', args=(product_id, )))
+
+            
 
 
 
