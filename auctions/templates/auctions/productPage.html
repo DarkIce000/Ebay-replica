@@ -1,115 +1,126 @@
-{% extends "auctions/layout.html" %}
+{% extends "auctions/layout.html" %} {% block body%}
 
-{% block body%}
+<!-- upper Body -->
+<!-- Product Description  -->
 
-    <!-- upper Body -->
-    <!-- Product Description  -->
-    
+    <!-- product page -->
+    <section id="product_information">
+      <div class="container-xxl shadow-lg rounded-3">
+          <div class="row mb-1 align-items-center">
+              <!-- leftside image -->
 
-    <div class="container">
-        <div class="row">
+              <div class="col-xxl-6">
+                  <img src="{{ product_info.imageUrl }}" alt="pc image" class="img-fluid" style="object-fit:contain">
+              </div>
 
-            <!-- left side  -->
-            <div class="col-lg" style="height:auto"> 
-                <img src="{{ product_info.imageUrl }}" alt="image" class="img-fluid rounded" style="min-width:400px" class="img-fluid">
-            </div>
-            
-            <!-- right side -->
+              <!-- rightside description    -->
+              <div class="col-xxl-6">
+                  <div class="row">
+                      <div class="col">
+                          <table class="table">
+                          <thead>
+                              <tr>
+                                  <th>{{product_info.product_title}}</th>
+                              </tr>
+                          </thead>
+                            <tbody>
+                              <tr>
+                                <th>Description: </th>
+                                <td> {{ product_info.description }}</td>
+                              </tr>
+                              <tr>
 
-            <div class="col align-items-center">
+                                <th>Seller: </th>
+                                <td> {{ product_info.seller }}</td>
+                              </tr>
+                              <tr>
+                                <th>Starting Bid: </th>
+                                <td> $ {{ product_info.bids.initialBid }}</td>
+                              </tr>
+                            </tbody>
+                              <tr>
+                                <th>Current leading Bid: </th>
+                                <td> $ {{ product_info.bids.last_bid }} By <span class="fw-bold ">{{ product_info.bids.last_bidder }}</span></td>
+                              </tr>
+                          </table>
+                      </div>
+                  </div>
+                  <!-- last row for the watchlist and the bidding form -->
+                  <div class="row">
+                      <div class="col">
+                          <form action="{% url 'add_to_watchlist' product_info.id %}" method="POST" id="watchlistForm">
+                            {% csrf_token %}
+                            <div class="form-check">
+                              <input class="form-check-input" name="addToWatchlist" type="checkbox" id="addToWatchlist" onclick="watchlist()" {{ is_in_watchlist }} />
+                              <label for="addToWatchlist" class="form-check-label">Add to Watchlist</label>
+                            </div>
+                          </form>
+                      </div>
+                      
+                      <!-- form wala div -->
+                      <div class="col">
+                          <form action="{% url 'bidding_view' product_info.id %}" id="biddingForm" method="POST">
+                              {% csrf_token %}
+                              {% if is_user %} 
+                                {% block Button %}
+                                  <input name="closeButton" type="submit" value="close" class="btn btn-primary" />
+                                {% endblock%} 
+                              {% else %} 
+                                {%block inputfield %}
+                                  <div>
+                                    <input type="number" name="biddingField" class="form-control my-1" placeholder="Bid here >$ {{ product_info.bids.last_bid }}"/>
+                                    <input type="submit" name="biddingButton" value="makeBid" class="btn btn-outline-primary"/>
+                                  </div>
+                                {% endblock %}
+                              {% endif %}
+                          </form>    
+                      </div>
 
-            <!-- description -->
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><b> {{ product_info.product_title }}</b></li>
-                    <li class="list-group-item"><b>Description: {{ product_info.description }}</b></li>
-                    <li class="list-group-item"><b>Seller: </b> {{ product_info.seller}}</li>
-                    <li class="list-group-item"><b>Starting Bid: </b> {{ product_info.bids.initialBid }} </li>
-                    <li class="list-group-item"><b>Current Bid: </b> {{ product_info.bids.last_bid }} {{ product_info.bids.last_bidder }} </li>
-                </ul>
-                
-            <!-- add to watchlist button  -->
-                <div class="form-check">
-                    <form action="{% url 'watchList' product_info.id %}" method="POST" id ="watchlistForm">
+                  </div>
+              </div>
+          </div>
+      </div> 
+    </section>
 
+
+<!-- commenting in the product page  -->
+    <section id="comments_section">
+        <div class="container-xxl">
+            <div class="row"> 
+                <!-- 1 .commenting form  -->
+                <div class="col-xxl-6">
+                   <!-- form for commentingk  -->
+                    <h2 class="my-4 border-tertiary border-2 border-bottom">Comment here</h2>
+                    <form action="{% url 'commentMade' product_info.id %}" method="POST">
                         {% csrf_token %}
-                        <label for="addToWatchlist" class="form-control-label">add to watchlist</label> 
-                        <input name="addToWatchlist" type="checkbox" class="form-control" id="addToWatchlist" onclick="watchlist()" {{ is_in_watchlist }}>
-
+                        {{formComment}}
+                        <button type="submit" class="btn btn-outline-primary mt-2" style="width:100%">
+                          Post
+                        </button>
                     </form>
                 </div>
-                <div class="form-check">
 
-                  <form action="{% url 'bidding_view' product_info.id %}" id="biddingForm" method="POST">
-
-                    {% csrf_token %}
-
-                    {% if is_user %}
-
-                      {% block Button %}
-                        <input name="closeButton" type="submit" value="close" class="btn btn-primary">
-                      {% endblock%}
-
-                    {% else %}
-
-                      {%block inputfield %}
-                        <input type="number" name="biddingField" class="form-control">
-                        <input type="submit" name="biddingButton" value="makeBid" class="btn btn-primary form-control">
-                      {% endblock %}
-
-                    {% endif %}
-
-                  </form>
-                </div> 
-            
-            </div>
-        </div>
-
-    </div>
-    
-
-    <!-- Lower Body -->
-
-    <!-- commenting in the product page  -->
-
-
-    <div class="container">
-        <div class="row mt-2">
-
-            <!-- comment mading -->
-            <div class="col-lg">
-                <h2 class="mt-2">Comment here </h2>
-                <hr>
-                <form action="{% url 'commentMade' product_info.id %}" method="POST">
-                    {% csrf_token %}
-                    {{formComment}} 
-                    <button type="submit" class="form-control btn-primary mt-2">Post</button>
-                </form>
-            </div>
-
-            <!-- comments List -->
-            <div class="col-lg">
-                <h2 class="mt-2">Comments So Far..</h2>
-                <hr>
-                <div class="list-group">
+                 <!-- 2. comments form  -->
+                <div class="col-xxl-6">
+                  <h2 class="my-4 border-bottom border-tertiary border-2">Comments So Far..</h2>
+                  <div class="col p-2" style="max-height:400px; overflow-y:scroll">
                     {% for comment in display_comments %}
-                        <p>{{ comment.title }}</p>
-                        <p>{{ comment.msg }}</p>
-                        <hr>
+                    <p class="lead border-bottom">{{ comment.title }}</p>
+
+                    <p>{{ comment.msg }}</p>
                     {% endfor %}
                 </div>
-
-            <!-- commentList -->
+            </div>
         </div>
-    </div>
-    
+    </section>
 
-    <!-- scripting starts from here  -->
+  <!-- scripting starts from here  -->
 
-    <script>
-        
-        function watchlist(){
-            Form = document.getElementById("watchlistForm");
-            Form.submit()
-        }
-    </script>
-{% endblock %}
+  <script>
+    function watchlist() {
+      Form = document.getElementById("watchlistForm");
+      Form.submit();
+    }
+  </script>
+  {% endblock %}
+</div>

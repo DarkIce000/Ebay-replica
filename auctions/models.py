@@ -8,7 +8,7 @@ class User(AbstractUser):
 class bid(models.Model):
     initialBid = models.IntegerField(default=0)
     last_bid = models.IntegerField(default=0)
-    last_bidder = models.OneToOneField(User, on_delete=models.CASCADE, related_name="last_bidder", null=True) 
+    last_bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="last_bidder", null=True) 
     def __str__(self):
         return f" last bid : {self.last_bid}, last_bidder : { self.last_bidder }, initialBid: { self.initialBid }"
  

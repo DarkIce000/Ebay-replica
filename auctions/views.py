@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from .formsTemplate import formCreate, formComment, formWatchlist
-from .models import User, list_item, comment, watchlist, bid
+from .models import User, list_item, comment, watchlist, bid, category
 from django.contrib.auth.decorators import login_required
 import datetime
 
@@ -142,14 +142,13 @@ def watchlist_view(request, product_id=0):
 
 
 @login_required(login_url='/login')
-def bidding_view(request, product_id):
-    try: 
-        get_product = list_item.objects.get(id=product_id)    
-        
-    except:
-        get_product = None 
-
+def bidding_view(request, product_id=0):
     if request.method == "POST":
+        try: 
+            get_product = list_item.objects.get(id=product_id)                
+        except:
+            get_product = None 
+
         if request.POST.get("closeButton"):
             # last time check if the user is the seller then change status to close and redirect to the product page 
             if request.user == get_product.seller :
@@ -170,9 +169,19 @@ def bidding_view(request, product_id):
             else: 
                 return HttpResponseRedirect(reverse('product_page', args=(product_id, )))
 
+    try:
+        get_bids = list_item.objects.filter(bids__last_bidder=request.user)
+    except:
+        get_bids = None 
+    return render(request, "auctions/bidding.html", {"usrBid": get_bids})
             
 
-
+def categories_view(request):
+    try:
+        categories = category.objects.all()
+        return render(request, "auctions/categories.html", {"ctg": categories})
+    except:
+        return render(request,"auctions/categories.html", {"ctg": None})
 
 
 
