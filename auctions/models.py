@@ -37,6 +37,6 @@ class watchlist(models.Model):
     #done 
 
 class category(models.Model):
-    category_title = models.CharField(max_length=50, primary_key=True, blank=False)
+    category_title = models.CharField(max_length=50, blank=False)
     product_id = models.ManyToManyField(list_item)
     #done

@@ -2,9 +2,9 @@
 
 {% block body %}
 <div class="container-xxl">
-    <h1 class="display-5 text-muted">Active Listing </h1>
+    <h1 class="display-5 text-muted">Category: {{ category_name }}</h1>
     <div class="row p-2 justify-content-center">
-        {% for item in listItem %}
+        {% for item in item_inthe_category %}
         <div class="col-xxl-3 col-lg-4 col-md-6">
             <div class="col mt-1">
                 <div class="card my-2 shadow-lg">
@@ -20,7 +20,7 @@
                         <li class="list-group-item"><b>Current Bid:</b> &#36;{{ item.bids.last_bid }}</li>
                     </ul>
                     <div class="card-body">
-                        <a href="{{ item.id }}" class="card-link btn btn-primary"> Go to Product Page </a>
+                        <a href="/{{ item.product_id.product_title }}" class="card-link btn btn-primary"> Go to Product Page </a>
                     </div>
                 </div>
             </div>

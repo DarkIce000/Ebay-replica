@@ -17,10 +17,11 @@
               <div class="col-xxl-6">
                   <div class="row">
                       <div class="col">
+
                           <table class="table">
                           <thead>
                               <tr>
-                                  <th>{{product_info.product_title}}</th>
+                                  <th colspan="2">{{product_info.product_title}}</th>
                               </tr>
                           </thead>
                             <tbody>
@@ -63,7 +64,7 @@
                               {% csrf_token %}
                               {% if is_user %} 
                                 {% block Button %}
-                                  <input name="closeButton" type="submit" value="close" class="btn btn-primary" />
+                                  <input name="closeButton" type="submit" value="close" class="btn btn-danger" />
                                 {% endblock%} 
                               {% else %} 
                                 {%block inputfield %}

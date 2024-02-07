@@ -2,7 +2,7 @@ from django import forms
 
 class formCreate(forms.Form):
     title = forms.CharField(widget=forms.TextInput(attrs={
-                                "class":"form-control my-2 form-control-sm",
+                                "class":"form-control my-2 form-control",
                                 "name":"title"
                                 }))
 
@@ -14,20 +14,20 @@ class formCreate(forms.Form):
 
     url = forms.CharField(label="URL of Image (optional)",
                            widget=forms.TextInput(attrs={
-                                "class":"form-control my-2 form-control-sm",
+                                "class":"form-control my-2 form-control",
                                 "name":"url",
                                 "type":"url"
                                  }))
 
     category = forms.CharField(label="Category",
                                 widget=forms.TextInput(attrs={
-                                    "class" : "form-control form-control-sm my-2",
+                                    "class" : "form-control form-control my-2",
                                     "name":"category"
                                     })) 
 
     initialBid = forms.CharField(label="Initial",
                                   widget=forms.TextInput(attrs={
-                                    "class" : "form-control form-control-sm my-2",
+                                    "class" : "form-control form-control my-2",
                                     "name":"initialBid",
                                     "type":"number"
                                     })) 

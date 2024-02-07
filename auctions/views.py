@@ -10,7 +10,7 @@ import datetime
 
 #index page for listing all the items
 def index(request):
-    listItem = list_item.objects.all()
+    listItem = list_item.objects.all().exclude(active_status=False)
     return render(request, "auctions/index.html", {
         "listItem": listItem
     })
@@ -28,9 +28,11 @@ def createListing(request):
             url = listing.cleaned_data["url"]
             description = listing.cleaned_data["Description"]
             initialBid = listing.cleaned_data["initialBid"]
+            ctg = listing.cleaned_data['category']
 
             bidding = bid(initialBid = initialBid)
             bidding.save()
+
 
             listItem = list_item(
                 product_title = title,
@@ -40,6 +42,13 @@ def createListing(request):
                 bids=bidding
                 )
             listItem.save()
+            try:
+                new_category = category.objects.get(category_title=ctg)
+                new_category.product_id.add(listItem)
+            except:
+                new_category = category.objects.create(category_title = ctg)
+                new_category.product_id.add(listItem)
+                
 
         else:
             return render(request, "auctions/createListing.html",{
@@ -170,18 +179,50 @@ def bidding_view(request, product_id=0):
                 return HttpResponseRedirect(reverse('product_page', args=(product_id, )))
 
     try:
-        get_bids = list_item.objects.filter(bids__last_bidder=request.user)
+        won_bids = list_item.objects.filter(bids__last_bidder=request.user).filter(active_status=False)
     except:
-        get_bids = None 
-    return render(request, "auctions/bidding.html", {"usrBid": get_bids})
+        won_bids = None 
+
+    try:
+        current_bids = list_item.objects.filter(bids_last_bidder=request.user).exclude(active_status=False)
+    except:
+        current_bids = None
+
+    return render(request, "auctions/my-bids.html", {"won_bids": won_bids, "current_bids": current_bids})
             
 
 def categories_view(request):
     try:
-        categories = category.objects.all()
+        categories = category.objects.values('category_title').distinct()
         return render(request, "auctions/categories.html", {"ctg": categories})
     except:
         return render(request,"auctions/categories.html", {"ctg": None})
+
+def category_item_list(request, category_name):
+    list_of_items_in_category = category.objects.get(category_title=category_name)
+    item_inthe_category = list_of_items_in_category.product_id.all()
+
+    return render (request, "auctions/category_items.html", {
+        "category_name": category_name,
+        "item_inthe_category": item_inthe_category
+    })
+
+
+@login_required(login_url='/login')
+def my_listing(request):
+    try:
+        users_listing = list_item.objects.filter(seller=request.user).filter(active_status=True)
+    except:
+        users_listing = None 
+    return render(request, "auctions/my-listing.html", {
+        "list": users_listing
+    })
+
+
+
+
+
+    
 
 
 
