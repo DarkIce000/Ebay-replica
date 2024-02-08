@@ -10,7 +10,10 @@
 {% endblock %}
 {% block body %}
 <div class="container-xxl mt-6">
-    <h1 class="display-5 text-muted"> My Listings </h1>
+    <div style="display:flex; justify-content: space-between; align-items: center;">
+      <h1 class="display-5 text-muted"> My Listings </h1>
+      <a href="{% url 'createListing' %}" class="btn btn-outline-primary"> Create New </a>
+    </div>
     <hr>
     <div class="row p-2 justify-content-center">
         {% for item in list %}
@@ -23,13 +26,13 @@
                 <div class="card-body">
                   <h5 class="card-title text-truncate">{{item.product_title}}</h5>
                   <p class="card-text text-truncate"> {{item.description}} </p>
-                  <p class="card-text text-truncate">$ {{item.bids.last_bid }}</p>
+                  <p class="card-text text-truncate">$ {{item.bids.last_bid }} By {{ item.bids.last_bidder }}</p>
                   <p class="card-text "><small class="text-body-secondary"><a href="{% url 'product_page' item.id%}" class="btn btn-primary btn-small">Go to Product Page </a></small></p>
                    <p>
 
-                    <form action="{% url 'bidding_view' item.id %}" method="POST">
+                    <form action="{% url 'bidding_view' item.id %}" method="post">
                         {% csrf_token %}
-                        <button type="submit" value="closeButton" class="btn btn-danger"> Close This</button>
+                        <input name="closeButton" type="submit" value="close" class="btn btn-danger" />
                     </form>
                     
                    </p> 

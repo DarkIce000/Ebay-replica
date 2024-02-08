@@ -184,7 +184,7 @@ def bidding_view(request, product_id=0):
         won_bids = None 
 
     try:
-        current_bids = list_item.objects.filter(bids_last_bidder=request.user).exclude(active_status=False)
+        current_bids = list_item.objects.filter(bids__last_bidder=request.user).exclude(active_status=False)
     except:
         current_bids = None
 

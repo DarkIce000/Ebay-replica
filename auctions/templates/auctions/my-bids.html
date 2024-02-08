@@ -8,12 +8,13 @@
 {% endblock %}
 {% block body %}
   <div class="container-xxl">
-    <div class="row">
+    <div class="row justify-content-between">
       
 
-      <div class="col-xxl-6">
+      <div class="col-xxl-5">
         <div class="row">
-          <h1>current bids</h1>
+          <h1> Current Bids </h1>
+          <hr>
 
           {% for item in current_bids %}
             <div class="col-xxl-8">
@@ -44,10 +45,11 @@
 
       <!-- column  -->
 
-      <div class="col-xxl-6">
+      <div class="col-xxl-5">
         <div class="row">
-         <h1> won Bids</h1> 
+         <h1>Bids You Won</h1> 
 
+          <hr>
           {% for item in won_bids %}
             <div class="col-xxl-8">
               <div class="col mt-1">
