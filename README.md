@@ -7,6 +7,7 @@ This is an ecommerce-project Ebay like bidding platform. Created for CS50 Web Co
 **Language**: Python, Javascript,  HTML, CSS
 **Framework & Tools**: Django,  Bootstrap
 ### Demo Video
+---
 
 
 <video src="https://github.com/user-attachments/assets/6baf0a24-defb-4399-a6c7-05d92120cd81"></video>
