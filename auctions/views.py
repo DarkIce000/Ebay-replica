@@ -70,9 +70,8 @@ def product(request, product_id):
     try:
         product_obj = list_item.objects.get(id=product_id)
         get_comments = comment.objects.filter(product_id=product_id)
-        is_in_watchlist= watchlist.objects.get(userId=request.user, product_id=product_obj) 
+        is_in_watchlist= watchlist.objects.get(userId=request.user.pk, product_id=product_obj) 
     except list_item.DoesNotExist:
-        
         product = None
     except comment.DoesNotExist:
         get_comment = "No Comments"
@@ -217,26 +216,6 @@ def my_listing(request):
     return render(request, "auctions/my-listing.html", {
         "list": users_listing
     })
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def login_view(request):
